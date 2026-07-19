@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Video Together</string>
+    <string name="create_room">Create a room</string>
+    <string name="join_room">Join with an invite</string>
+    <string name="watch_together">Watch together</string>
+    <string name="chat">Chat</string>
+    <string name="participants">Participants</string>
+    <string name="synchronized">Synchronized</string>
+    <string name="connecting">Connecting…</string>
+    <string name="message_hint">Write a message…</string>
+    <string name="invite">Invite</string>
+</resources>

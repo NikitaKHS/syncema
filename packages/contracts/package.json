@@ -1,0 +1,13 @@
+{
+  "name": "@video-together/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "build": "node scripts/check.mjs",
+    "lint": "node scripts/check.mjs",
+    "test": "node scripts/check.mjs",
+    "typecheck": "node scripts/check.mjs"
+  },
+  "devDependencies": { "yaml": "^2.8.1", "ajv": "^8.17.1" }
+}

@@ -1,0 +1,4 @@
+-keepattributes Signature,*Annotation*
+-keep class io.socket.** { *; }
+-keep class org.json.** { *; }
+-dontwarn org.conscrypt.**

@@ -1,0 +1,42 @@
+asyncapi: 3.0.0
+info:
+  title: Video Together realtime API
+  version: 0.1.0
+servers:
+  production:
+    host: api.videotogether.example
+    protocol: wss
+channels:
+  room:
+    address: /rooms
+    messages:
+      roomJoin: { $ref: '#/components/messages/RoomJoin' }
+      roomSnapshot: { $ref: '#/components/messages/RoomSnapshot' }
+      playbackIntent: { $ref: '#/components/messages/PlaybackIntent' }
+      playbackState: { $ref: '#/components/messages/PlaybackState' }
+      chatSend: { $ref: '#/components/messages/ChatSend' }
+      chatMessage: { $ref: '#/components/messages/ChatMessage' }
+operations:
+  joinRoom: { action: send, channel: { $ref: '#/channels/room' }, messages: [{ $ref: '#/channels/room/messages/roomJoin' }] }
+  receiveSnapshot: { action: receive, channel: { $ref: '#/channels/room' }, messages: [{ $ref: '#/channels/room/messages/roomSnapshot' }] }
+  controlPlayback: { action: send, channel: { $ref: '#/channels/room' }, messages: [{ $ref: '#/channels/room/messages/playbackIntent' }] }
+  receivePlayback: { action: receive, channel: { $ref: '#/channels/room' }, messages: [{ $ref: '#/channels/room/messages/playbackState' }] }
+  sendChat: { action: send, channel: { $ref: '#/channels/room' }, messages: [{ $ref: '#/channels/room/messages/chatSend' }] }
+  receiveChat: { action: receive, channel: { $ref: '#/channels/room' }, messages: [{ $ref: '#/channels/room/messages/chatMessage' }] }
+components:
+  messages:
+    RoomJoin: { name: room:join, payload: { type: object, required: [roomId], properties: { roomId: { type: string }, lastSequence: { type: integer } } } }
+    RoomSnapshot: { name: room:snapshot, payload: { $ref: '#/components/schemas/Snapshot' } }
+    PlaybackIntent: { name: playback:intent, payload: { type: object, required: [roomId, action, positionMs], properties: { roomId: { type: string }, action: { enum: [play, pause, seek, load] }, positionMs: { type: integer }, videoId: { type: string } } } }
+    PlaybackState: { name: playback:state, payload: { $ref: '#/components/schemas/Playback' } }
+    ChatSend: { name: chat:send, payload: { type: object, required: [roomId, body], properties: { roomId: { type: string }, body: { type: string, maxLength: 1000 } } } }
+    ChatMessage: { name: chat:message, payload: { type: object, required: [id, roomId, userId, body, sentAt], properties: { id: { type: string }, roomId: { type: string }, userId: { type: string }, body: { type: string }, sentAt: { type: string, format: date-time } } } }
+  schemas:
+    Playback:
+      type: object
+      required: [videoId, state, positionMs, playbackRate, serverTimeMs, sequence]
+      properties: { videoId: { type: string }, state: { enum: [playing, paused, buffering, ended] }, positionMs: { type: integer }, playbackRate: { type: number }, serverTimeMs: { type: integer }, sequence: { type: integer } }
+    Snapshot:
+      type: object
+      required: [roomId, playback, participants, messages]
+      properties: { roomId: { type: string }, playback: { $ref: '#/components/schemas/Playback' }, participants: { type: array, items: { type: object } }, messages: { type: array, items: { type: object } } }

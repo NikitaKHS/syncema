@@ -1,0 +1,9 @@
+videotogether.example {
+  encode zstd gzip
+  reverse_proxy web:3000
+}
+
+api.videotogether.example {
+  encode zstd gzip
+  reverse_proxy api:4000
+}

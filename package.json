@@ -1,0 +1,16 @@
+{
+  "name": "video-together",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.13.1",
+  "engines": { "node": ">=22.0.0" },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @video-together/api --filter @video-together/web dev",
+    "build": "pnpm -r --if-present build",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "contracts:check": "pnpm --filter @video-together/contracts check"
+  }
+}

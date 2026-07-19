@@ -1,0 +1,105 @@
+openapi: 3.1.0
+info:
+  title: Video Together REST API
+  version: 0.1.0
+servers:
+  - url: https://api.videotogether.example/api/v1
+  - url: http://localhost:4000/api/v1
+security: [{ bearerAuth: [] }]
+paths:
+  /auth/guest:
+    post:
+      security: []
+      operationId: createGuestSession
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/GuestAuthRequest' } } }
+      responses: { '201': { description: Session created, content: { application/json: { schema: { $ref: '#/components/schemas/AuthSession' } } } } }
+  /auth/google:
+    post: { security: [], operationId: authenticateGoogle, responses: { '201': { description: Session created } } }
+  /auth/refresh:
+    post: { security: [], operationId: refreshSession, responses: { '201': { description: Session rotated } } }
+  /auth/logout:
+    post: { operationId: logout, responses: { '204': { description: Logged out } } }
+  /auth/me:
+    get: { operationId: getCurrentUser, responses: { '200': { description: Current user, content: { application/json: { schema: { $ref: '#/components/schemas/User' } } } } } }
+  /rooms:
+    get: { operationId: listRooms, responses: { '200': { description: Rooms } } }
+    post:
+      operationId: createRoom
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/CreateRoomRequest' } } } }
+      responses: { '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Room' } } } } }
+  /rooms/{roomId}:
+    parameters: [{ $ref: '#/components/parameters/RoomId' }]
+    get: { operationId: getRoom, responses: { '200': { description: Room } } }
+    patch: { operationId: updateRoom, responses: { '200': { description: Updated } } }
+    delete: { operationId: deleteRoom, responses: { '204': { description: Deleted } } }
+  /rooms/{roomId}/join:
+    post: { operationId: joinRoom, parameters: [{ $ref: '#/components/parameters/RoomId' }], responses: { '200': { description: Joined } } }
+  /rooms/{roomId}/leave:
+    post: { operationId: leaveRoom, parameters: [{ $ref: '#/components/parameters/RoomId' }], responses: { '204': { description: Left } } }
+  /rooms/{roomId}/invites:
+    post: { operationId: createInvite, parameters: [{ $ref: '#/components/parameters/RoomId' }], responses: { '201': { description: Invite } } }
+  /rooms/{roomId}/regenerate-invite:
+    post: { operationId: regenerateInvite, parameters: [{ $ref: '#/components/parameters/RoomId' }], responses: { '201': { description: Invite } } }
+  /rooms/{roomId}/members/{userId}:
+    patch: { operationId: updateMember, parameters: [{ $ref: '#/components/parameters/RoomId' }, { $ref: '#/components/parameters/UserId' }], responses: { '200': { description: Updated } } }
+    delete: { operationId: removeMember, parameters: [{ $ref: '#/components/parameters/RoomId' }, { $ref: '#/components/parameters/UserId' }], responses: { '204': { description: Removed } } }
+  /rooms/{roomId}/messages:
+    get: { operationId: listMessages, parameters: [{ $ref: '#/components/parameters/RoomId' }], responses: { '200': { description: Messages } } }
+  /rooms/{roomId}/messages/{messageId}:
+    delete: { operationId: deleteMessage, parameters: [{ $ref: '#/components/parameters/RoomId' }, { name: messageId, in: path, required: true, schema: { type: string } }], responses: { '204': { description: Deleted } } }
+  /youtube/videos/{videoId}:
+    get: { security: [], operationId: getYouTubeVideo, parameters: [{ name: videoId, in: path, required: true, schema: { type: string } }], responses: { '200': { description: Video metadata } } }
+  /youtube/search:
+    get: { security: [], operationId: searchYouTube, parameters: [{ name: q, in: query, required: true, schema: { type: string, maxLength: 120 } }], responses: { '200': { description: Search results } } }
+  /youtube/playlists/{playlistId}:
+    get: { security: [], operationId: getYouTubePlaylist, parameters: [{ name: playlistId, in: path, required: true, schema: { type: string } }], responses: { '200': { description: Playlist } } }
+  /devices/push-token:
+    post: { operationId: registerPushToken, responses: { '204': { description: Registered } } }
+    delete: { operationId: unregisterPushToken, responses: { '204': { description: Removed } } }
+  /health:
+    get: { security: [], operationId: health, responses: { '200': { description: Healthy } } }
+  /ready:
+    get: { security: [], operationId: readiness, responses: { '200': { description: Ready } } }
+  /version:
+    get: { security: [], operationId: version, responses: { '200': { description: Version } } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    RoomId: { name: roomId, in: path, required: true, schema: { type: string, format: uuid } }
+    UserId: { name: userId, in: path, required: true, schema: { type: string, format: uuid } }
+  schemas:
+    GuestAuthRequest:
+      type: object
+      additionalProperties: false
+      required: [displayName]
+      properties: { displayName: { type: string, minLength: 2, maxLength: 40 } }
+    AuthSession:
+      type: object
+      required: [accessToken, refreshToken, expiresIn, user]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        expiresIn: { type: integer }
+        user: { $ref: '#/components/schemas/User' }
+    User:
+      type: object
+      required: [id, displayName]
+      properties: { id: { type: string, format: uuid }, displayName: { type: string }, avatarUrl: { type: [string, 'null'], format: uri } }
+    CreateRoomRequest:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties: { name: { type: string, minLength: 2, maxLength: 80 }, videoId: { type: string, pattern: '^[A-Za-z0-9_-]{11}$' } }
+    Room:
+      type: object
+      required: [id, name, ownerId, inviteCode, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        ownerId: { type: string, format: uuid }
+        inviteCode: { type: string }
+        videoId: { type: [string, 'null'] }
+        createdAt: { type: string, format: date-time }

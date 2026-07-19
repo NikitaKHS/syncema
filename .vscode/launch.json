@@ -1,0 +1,1 @@
+{ "version": "0.2.0", "configurations": [{ "name": "API: debug", "type": "node", "request": "launch", "runtimeExecutable": "pnpm", "runtimeArgs": ["--filter", "@video-together/api", "dev"], "console": "integratedTerminal" }] }

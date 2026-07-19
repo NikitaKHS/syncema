@@ -1,0 +1,19 @@
+services:
+  api:
+    restart: unless-stopped
+    expose: ["4000"]
+    ports: []
+  web:
+    restart: unless-stopped
+    expose: ["3000"]
+    ports: []
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    depends_on: [web, api]
+volumes:
+  caddy-data:

@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    { "label": "dev", "type": "shell", "command": "pnpm dev", "isBackground": true, "problemMatcher": [] },
+    { "label": "check", "type": "shell", "command": "pnpm check", "problemMatcher": [] },
+    { "label": "android debug", "type": "shell", "command": ".\\apps\\android\\gradlew.bat assembleDebug", "problemMatcher": [] }
+  ]
+}

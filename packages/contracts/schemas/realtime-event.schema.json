@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://videotogether.example/schemas/realtime-event.schema.json",
+  "title": "Realtime event envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["eventId", "type", "roomId", "occurredAt", "payload"],
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "type": { "enum": ["room:snapshot", "playback:state", "presence:changed", "chat:message", "system:message"] },
+    "roomId": { "type": "string", "format": "uuid" },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "payload": { "type": "object" }
+  }
+}
